@@ -31,6 +31,8 @@ public class MyFileManager {
     Document document;
     String line;
     String myHash="";
+    String description="";
+    String keywords="";
 
     MyFileManager(String url,String downloadPath)
     {
@@ -41,7 +43,7 @@ public class MyFileManager {
 
     public boolean parseFile()
     {
-        System.out.println("Downloading file at link : "+url+" from thread "+Thread.currentThread().getName());
+        System.out.println("Downloading file at link : "+url);
         boolean success=true;
         URL myUrl = null;
         try {
@@ -51,26 +53,48 @@ public class MyFileManager {
             fileName=fileUUID;
 
             line="";
-            document=Jsoup.connect(url).get();
+            document=Jsoup.connect(url).timeout(5000).get();
 
+
+            if(document==null) return false;
             fileTitle=document.title().toString();
             line+=fileTitle;
 
+
             fileBody=document.body().text();
             line+=fileBody;
+
             Elements elem=document.select("h1,h2,h3,h4,h5,h6");
 
             for(Element e:elem)
             {
                 fileHeaders+=e.text()+'\n';
-            }
 
+            }
             line+=fileHeaders;
+
+            //Get description from document object.
+
+              Elements des= document.select("meta[name=description]");
+              if(des!=null&&des.get(0)!=null)   description=des .get(0).attr("content");
+
+           //   System.out.println(description);
+
+
+            //Get keywords from document object.
+            Elements keys =
+                    document.select("meta[name=keywords]");
+                  if(keys!=null&&keys.first()!=null)         keywords=keys.first().attr("content");
 
 
             String docString=document.toString();
-            if(!line.equals(""))
+            if(line.equals(""))
             {
+                System.out.println("doc is empty");
+
+
+            }
+            else {
 
                 BufferedWriter writer = new BufferedWriter(new FileWriter(downloadPath + "/"+fileName+".txt"));
                 writer.write(url);
@@ -94,6 +118,7 @@ public class MyFileManager {
 
         catch (IOException e) {
             e.printStackTrace();
+            System.out.println("time out from file manager");
             success=false;
         }
         return success;
@@ -107,6 +132,7 @@ public class MyFileManager {
         //Now Extract all the links from the page
 
         Elements anchors = document.select("a[href]");
+        System.out.println("outs="+anchors.size());
         outlinks=anchors.size();
         if(outlinks==0) System.out.println("0 outs for "+url);
         for (Element anchor : anchors) {
@@ -198,10 +224,20 @@ public class MyFileManager {
         }
     }
     public FileInfo getFileInfo() {
-        return new FileInfo(url, outlinks, myHash,fileName);
+        return new FileInfo(url, outlinks, myHash,fileName,fileTitle,fileHeaders,fileBody,description,keywords);
+
         //  return  new FileInfo(url,fileTitle,fileBody,fileHeaders,simHash,outlinks,myHash);}
 
     }
 
+    public String getHashValue()
+    {
+        return myHash;
+    }
 
+
+    public String getFileName() {
+
+        return fileName;
+    }
 }

@@ -16,6 +16,9 @@ public class FileInfo implements Serializable{
     public String myHash;
     public boolean downloaded=false;
     String fileName="";
+    String description="";
+    String keyWords="";
+
 
     public FileInfo(String url,String title,String body,String headers,String simHash,int outlinks,String myHash)
     {
@@ -39,7 +42,7 @@ public class FileInfo implements Serializable{
 
     }
 
-    public FileInfo(String url,int outlinks,String myHash,String fileName)
+    public FileInfo(String url,int outlinks,String myHash,String fileName,String title,String headers,String body,String description,String keyWords)
     {
         this.url=url;
 
@@ -48,6 +51,12 @@ public class FileInfo implements Serializable{
         this.myHash=myHash;
 
         this.fileName=fileName;
+        this.title=title;
+        this.body=body;
+        this.headers=headers;
+        this.description=description;
+        this.keyWords=keyWords;
+
     }
 
 }

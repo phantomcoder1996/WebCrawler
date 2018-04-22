@@ -82,37 +82,40 @@ public class DBManager
     {
         System.out.println("DB files from db manager : "+files.size());
         BulkWriteOperation bulk = db.getCollection("urls").initializeUnorderedBulkOperation();
-
+        BulkWriteOperation bulk2 = db.getCollection("downloadedDocuments").initializeUnorderedBulkOperation();
         int size=files.size();
         System.out.println("Adding files "+ size);
 
-            for (int i = 0; i < size; ++i) {
-                try {
-                    FileInfo currentFile = files.get(i);
-                    BasicDBObject url = new BasicDBObject("url", currentFile.url);
-                    ArrayList<String> temp = new ArrayList<>();
+        for (int i = 0; i < size; ++i) {
+            try {
+                FileInfo currentFile = files.get(i);
+                BasicDBObject url = new BasicDBObject("url", currentFile.url);
+                ArrayList<String> temp = new ArrayList<>();
 
-                    bulk.find(url).upsert().update(new BasicDBObject("$set",
-                            new BasicDBObject("outLinks", currentFile.outlinks).append("myHash", currentFile.myHash).append("rank", Math.random() ).append("downloaded", 1).append("inLinks", temp.toArray()).append("fileName",currentFile.fileName)
-                           ));
-                }catch(BulkWriteException e)
-                    {
-                        System.out.println("url must be unique");
-                    }
-
+                bulk.find(url).upsert().update(new BasicDBObject("$set",
+                        new BasicDBObject("outLinks", currentFile.outlinks).append("myHash", currentFile.myHash).append("rank", Math.random()).append("downloaded", 1).append("inLinks", temp.toArray()).append("fileName",currentFile.fileName)
+                ));
+                bulk2.find(url).upsert().update(new BasicDBObject("$set",
+                        new BasicDBObject("title", currentFile.title).append("description", currentFile.description).append("keywords", currentFile.keyWords).append("headers", currentFile.headers).append("body", currentFile.body)
+                ));
+            }catch(BulkWriteException e)
+            {
+                System.out.println("url must be unique");
             }
 
-try {
-if(size>0)    bulk.execute();
-}
-catch (BulkWriteException e) {
-e.printStackTrace();
+        }
 
-}
-catch(IllegalStateException e)
-{
-    System.out.println("Nothing to write in db");
-}
+        try {
+            if(size>0)    bulk.execute();
+        }
+        catch (BulkWriteException e) {
+            e.printStackTrace();
+
+        }
+        catch(IllegalStateException e)
+        {
+            System.out.println("Nothing to write in db");
+        }
     }
 
 

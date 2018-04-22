@@ -175,24 +175,20 @@ System.out.println("level = "+0);
                             // fileManager.createSimHash();
                             fileManager.createHash();
 
-                            FileInfo fileInfo = fileManager.getFileInfo();
+                            String pageHash = fileManager.getHashValue();
                             //If second time this link will have a simHash value,so check for update
                             //If updated the database shall know about it
 
                             String prevHash = Resources.simHash.get(normalized);
                             if (prevHash!=null) {
 
-                                if (prevHash.equals(fileInfo.myHash)){System.out.println("not updated"); continue;}
+                                if (prevHash.equals(pageHash)){System.out.println("not updated"); continue;}
 
                             }
-                            //The page has no prev hash val so we will have to add it to database
-                            // Resources.addFileObject(fileInfo);
-                            fileInfo.downloaded=true;
-                            scheduledDownloads.add(fileInfo);
-                            System.out.println("Scheduled downloads "+scheduledDownloads.size());
-                            //Declare that the file as downloaded so that we can get its in links
 
-                                DownloadedMonitor.addDownloaded(fileInfo.fileName);
+                            String fileName=fileManager.getFileName();
+
+                            DownloadedMonitor.addDownloaded(fileName);
                             //Add that files inLink to the hashmap in Resources
 
                             //Now go through all pages and if not visited add them to queue
@@ -200,6 +196,18 @@ System.out.println("level = "+0);
                             //In this case add me as an Inlink to these pages
 
                                 ArrayList<String> fetchedLinks = fileManager.extractLinks();
+
+
+                            //The page has no prev hash val so we will have to add it to database
+                            // Resources.addFileObject(fileInfo);
+                            FileInfo fileInfo=fileManager.getFileInfo();
+                            fileInfo.downloaded=true;
+
+                            scheduledDownloads.add(fileInfo);
+                            System.out.println("Scheduled downloads "+scheduledDownloads.size());
+                            //Declare that the file as downloaded so that we can get its in links
+
+
                                 examineFetchedLinks(fetchedLinks,normalized);
 
 

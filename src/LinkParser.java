@@ -3,6 +3,9 @@ import org.jsoup.Jsoup;
 import java.io.InputStreamReader;
 import java.net.*;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -58,7 +61,25 @@ public class LinkParser {
 
     public static boolean linksToDirectory(String url,String dir)
     {
-        return url.contains(dir);
+        if(dir.contains("*")||dir.contains("$"))
+        {
+            //construct the pattern
+            dir=dir.replace("*",".*");
+            StringBuilder s1=new StringBuilder(dir);
+            if(s1.indexOf(".*")!=0)
+                s1.insert(0,".*");
+
+
+            Pattern p1=Pattern.compile("https?://.+.[a-zA-Z]+/"+s1.toString());
+            //  System.out.println(p1.pattern());
+
+            Matcher m=p1.matcher(url);
+
+            return m.matches();
+        }
+        else
+
+            return url.contains(dir);
 
 
     }
